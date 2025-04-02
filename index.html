@@ -1,1 +1,359 @@
-<h1>Hello!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Merger (Dracula Theme)</title>
+    <script src="https://unpkg.com/pdf-lib@^1.11.2"></script>
+    <script src="https://unpkg.com/downloadjs@1.4.7"></script>
+    <style>
+        :root {
+            /* Dracula Color Palette */
+            --bg: #282a36;
+            --fg: #f8f8f2;
+            --selection: #44475a;
+            --comment: #6272a4;
+            --cyan: #8be9fd;
+            --green: #50fa7b;
+            --orange: #ffb86c;
+            --pink: #ff79c6;
+            --purple: #bd93f9;
+            --red: #ff5555;
+            --yellow: #f1fa8c;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--fg);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--selection);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: var(--purple);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: var(--comment);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--cyan);
+            font-weight: bold;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--bg);
+            border: 2px solid var(--comment);
+            border-radius: 4px;
+            color: var(--fg);
+            font-family: inherit;
+        }
+
+        input[type="file"]:focus {
+            outline: none;
+            border-color: var(--purple);
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: var(--purple);
+            color: var(--bg);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 30px auto;
+            width: 200px;
+            text-align: center;
+        }
+
+        button:hover {
+            background-color: var(--pink);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(189, 147, 249, 0.4);
+        }
+
+        button:disabled {
+            background-color: var(--comment);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .file-info {
+            margin: 10px 0;
+            font-size: 14px;
+            color: var(--green);
+            padding: 8px;
+            background-color: rgba(80, 250, 123, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid var(--green);
+        }
+
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-label {
+            color: var(--cyan);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress {
+            width: 100%;
+            background-color: var(--selection);
+            border-radius: 4px;
+            overflow: hidden;
+            height: 20px;
+        }
+
+        #progressBar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple), var(--pink));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background-color: rgba(80, 250, 123, 0.2);
+            color: var(--green);
+            border-left: 3px solid var(--green);
+        }
+
+        .status.error {
+            background-color: rgba(255, 85, 85, 0.2);
+            color: var(--red);
+            border-left: 3px solid var(--red);
+        }
+
+        /* Dracula scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--selection);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--purple);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--pink);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <h1>Scantron + Written Answers Merger</h1>
+    <p class="subtitle">Ensures proper double-sided printing alignment</p>
+
+    <div class="input-group">
+        <label for="sheetPack">Scantron/Test Sheets:</label>
+        <input type="file" id="sheetPack" accept=".pdf">
+        <div id="sheetPackInfo" class="file-info">No file selected</div>
+    </div>
+
+    <div class="input-group">
+        <label for="writtenAnswer">Written Answer Sheets:</label>
+        <input type="file" id="writtenAnswer" accept=".pdf">
+        <div id="writtenAnswerInfo" class="file-info">No file selected</div>
+    </div>
+
+    <button id="processBtn" onclick="processPdf()">Merge PDFs</button>
+
+    <div class="progress-container">
+        <div class="progress-label">
+            <span>Processing Progress</span>
+            <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress">
+            <div id="progressBar"></div>
+        </div>
+    </div>
+    <div id="status" class="status"></div>
+</div>
+
+<script>
+    // File input handlers
+    document.getElementById('sheetPack').addEventListener('change', function(e) {
+        updateFileInfo(e, 'sheetPackInfo');
+        toggleProcessButton();
+    });
+
+    document.getElementById('writtenAnswer').addEventListener('change', function(e) {
+        updateFileInfo(e, 'writtenAnswerInfo');
+        toggleProcessButton();
+    });
+
+    function updateFileInfo(event, elementId) {
+        const file = event.target.files[0];
+        const infoDiv = document.getElementById(elementId);
+        if (file) {
+            infoDiv.textContent = `${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+        } else {
+            infoDiv.textContent = 'No file selected';
+        }
+    }
+
+    function toggleProcessButton() {
+        const btn = document.getElementById('processBtn');
+        const hasFiles = document.getElementById('sheetPack').files.length > 0 &&
+            document.getElementById('writtenAnswer').files.length > 0;
+        btn.disabled = !hasFiles;
+    }
+
+    async function loadPdf(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        return PDFLib.PDFDocument.load(arrayBuffer);
+    }
+
+    function updateProgress(percent) {
+        document.getElementById('progressBar').style.width = `${percent}%`;
+        document.getElementById('progressPercent').textContent = `${Math.round(percent)}%`;
+    }
+
+    async function processPdf() {
+        const statusElement = document.getElementById('status');
+        const processBtn = document.getElementById('processBtn');
+
+        // Reset UI
+        statusElement.textContent = 'Processing...';
+        statusElement.className = 'status';
+        updateProgress(0);
+        processBtn.disabled = true;
+
+        try {
+            // Get input files
+            const sheetPackFile = document.getElementById('sheetPack').files[0];
+            const writtenAnswerFile = document.getElementById('writtenAnswer').files[0];
+
+            // Create output filename
+            const originalName = sheetPackFile.name.replace(/\.pdf$/i, '');
+            const outputFilename = `${originalName}_merged.pdf`;
+
+            // Load PDFs
+            updateProgress(10);
+            const [testSheetsPdf, answerSheetsPdf] = await Promise.all([
+                loadPdf(sheetPackFile),
+                loadPdf(writtenAnswerFile)
+            ]);
+            updateProgress(30);
+
+            // Create new PDF
+            const mergedPdf = await PDFLib.PDFDocument.create();
+
+            // Get all pages
+            const testPages = await mergedPdf.copyPages(
+                testSheetsPdf,
+                testSheetsPdf.getPageIndices()
+            );
+
+            const answerPages = await mergedPdf.copyPages(
+                answerSheetsPdf,
+                answerSheetsPdf.getPageIndices()
+            );
+            updateProgress(50);
+
+            // Check if answer pages are even
+            const answerPagesCount = answerPages.length;
+            const needsBlankPage = answerPagesCount > 0 && answerPagesCount % 2 === 0;
+
+            // Create blank page if needed (using first answer page dimensions)
+            let blankPage = null;
+            if (needsBlankPage && answerPages.length > 0) {
+                const firstAnswerPage = answerPages[0];
+                blankPage = mergedPdf.addPage([firstAnswerPage.getWidth(), firstAnswerPage.getHeight()]);
+            }
+
+            // Merge with proper printing alignment
+            let answerPageIndex = 0;
+            for (let i = 0; i < testPages.length; i++) {
+                // Add test sheet (always front)
+                mergedPdf.addPage(testPages[i]);
+
+                // Add answer sheets (if any remain)
+                if (answerPageIndex < answerPages.length) {
+                    // Add all answer pages in sequence
+                    while (answerPageIndex < answerPages.length) {
+                        mergedPdf.addPage(answerPages[answerPageIndex]);
+                        answerPageIndex++;
+
+                        // If we added an even number of answer pages, insert blank if needed
+                        if (needsBlankPage && answerPageIndex === answerPages.length) {
+                            mergedPdf.addPage(blankPage);
+                        }
+
+                        // After each pair (or blank), add the next test sheet
+                        if (answerPageIndex % 2 === 0 && i < testPages.length - 1) {
+                            i++;
+                            mergedPdf.addPage(testPages[i]);
+                        }
+                    }
+                }
+
+                updateProgress(50 + (i / testPages.length) * 40);
+            }
+
+            // Save and download
+            updateProgress(90);
+            const pdfBytes = await mergedPdf.save();
+            download(pdfBytes, outputFilename, "application/pdf");
+
+            updateProgress(100);
+            statusElement.textContent = `Success! Saved as ${outputFilename}`;
+            statusElement.className = 'status success';
+        } catch (error) {
+            console.error(error);
+            statusElement.textContent = `Error: ${error.message}`;
+            statusElement.className = 'status error';
+            updateProgress(0);
+        } finally {
+            processBtn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>
