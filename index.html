@@ -285,55 +285,42 @@
             // Create new PDF
             const mergedPdf = await PDFLib.PDFDocument.create();
 
-            // Get all pages
-            const testPages = await mergedPdf.copyPages(
-                testSheetsPdf,
-                testSheetsPdf.getPageIndices()
-            );
+            // Copy all test pages
+            const testPages = await mergedPdf.copyPages(testSheetsPdf, testSheetsPdf.getPageIndices());
 
-            const answerPages = await mergedPdf.copyPages(
-                answerSheetsPdf,
-                answerSheetsPdf.getPageIndices()
-            );
-            updateProgress(50);
-
-            // Check if answer pages are even
-            const answerPagesCount = answerPages.length;
-            const needsBlankPage = answerPagesCount > 0 && answerPagesCount % 2 === 0;
-
-            // Create blank page if needed (using first answer page dimensions)
-            let blankPage = null;
-            if (needsBlankPage && answerPages.length > 0) {
-                const firstAnswerPage = answerPages[0];
-                blankPage = mergedPdf.addPage([firstAnswerPage.getWidth(), firstAnswerPage.getHeight()]);
+            // Determine blank page dimensions from first answer page (if any)
+            let blankPageDimensions = null;
+            if (answerSheetsPdf.getPageCount() > 0) {
+                const [firstAnswerPage] = await mergedPdf.copyPages(answerSheetsPdf, [0]);
+                blankPageDimensions = [firstAnswerPage.getWidth(), firstAnswerPage.getHeight()];
             }
 
-            // Merge with proper printing alignment
-            let answerPageIndex = 0;
+            updateProgress(50);
+
+            // Merge pages
             for (let i = 0; i < testPages.length; i++) {
-                // Add test sheet (always front)
+                // Add current test page
                 mergedPdf.addPage(testPages[i]);
 
-                // Add answer sheets (if any remain)
-                if (answerPageIndex < answerPages.length) {
-                    // Add all answer pages in sequence
-                    while (answerPageIndex < answerPages.length) {
-                        mergedPdf.addPage(answerPages[answerPageIndex]);
-                        answerPageIndex++;
+                // Add answer pages if any
+                if (answerSheetsPdf.getPageCount() > 0) {
+                    // Copy answer pages for this test page
+                    const answerPageIndices = answerSheetsPdf.getPageIndices();
+                    const currentAnswerPages = await mergedPdf.copyPages(answerSheetsPdf, answerPageIndices);
 
-                        // If we added an even number of answer pages, insert blank if needed
-                        if (needsBlankPage && answerPageIndex === answerPages.length) {
-                            mergedPdf.addPage(blankPage);
-                        }
+                    // Add all answer pages
+                    currentAnswerPages.forEach(page => mergedPdf.addPage(page));
 
-                        // After each pair (or blank), add the next test sheet
-                        if (answerPageIndex % 2 === 0 && i < testPages.length - 1) {
-                            i++;
-                            mergedPdf.addPage(testPages[i]);
-                        }
+                    // Check if even and not last test page
+                    const answerPagesCount = currentAnswerPages.length;
+                    const needsBlank = answerPagesCount % 2 === 0 && i < testPages.length - 1;
+
+                    if (needsBlank && blankPageDimensions) {
+                        mergedPdf.addPage(blankPageDimensions);
                     }
                 }
 
+                // Update progress
                 updateProgress(50 + (i / testPages.length) * 40);
             }
 
