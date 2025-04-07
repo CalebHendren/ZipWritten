@@ -30,3 +30,11 @@ Take your Answer Sheet Packets from ZipGrade and the Written Sheet PDF that you 
 1. Select the Answer Sheet Packets as the **Bubble Sheet**
 2. Select the Written Sheet as the **Written Answer Sheet**
 3. Click **Merge**
+
+## Upcoming Features
+
+### Accept Microsoft Word documents for the Written Answer Sheet to avoid the conversion to PDF. 
+The issue is that after being uploaded, they will have to be converted into HTML then into a PDF because I cannot find a way to directly convert into a PDF in a way that can be done 100% in the browser.
+
+### Process student IDs to make them ZipGrade compatable
+ZipGrade only accepts numbers in the student ID field. When exported from eLearn, they are in the format #A00123456. ZipGrade can automatically assign random numbers as IDs, but if you would rather use their actual IDs, I plan to add a way to automatically cut off the unnecessary "#A00" and keep the "123456." In the mean time, this can be done quickly in Excel using the formula =RIGHT(A2, LEN(A2) - 4) and dragging the fill handle down.
