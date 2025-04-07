@@ -4,14 +4,14 @@
 
 ## About
 
-This program simply adds a new page to the backs of multiple choice scanforms for written and essay questions. It is primarily made with ZipGrade in mind. Other services, such as Akindi, are untested, but it should work.
+This program simply adds a new page to the backs of multiple choice scanforms for written and essay questions. This way, when printed front and back, the scanform will be on the front and the written section will be on the back. It is primarily made with ZipGrade in mind. Other services, such as Akindi, are untested, but it should work.
 
 **Example Input and Output files:**  
 [https://github.com/CalebHendren/zipmerge/tree/master/Example](https://github.com/CalebHendren/zipmerge/tree/master/Example)
 
 ## Usage
 
-> **Note:** Step 1 is optional if you don't want student names and other information pre-printed on the sheets, but at that point, you may as well just merge the two single-page PDF files manually in Adobe Acrobat.
+> **Note:** Step 1 is optional if you don't want student names and other information pre-printed on the sheets, but at that point, you may as well just merge the two single-page PDF files manually in Adobe Acrobat. But you can still use this if you don't like dealing with Acrobat.
 
 ### Step 1: Create a class on ZipGrade and import a classlist from your LMS ("eLearn")
 See: [https://support.zipgrade.com/hc/en-us/articles/202512649-How-do-I-enter-edit-import-students](https://support.zipgrade.com/hc/en-us/articles/202512649-How-do-I-enter-edit-import-students)
