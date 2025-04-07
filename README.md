@@ -1,4 +1,4 @@
-# ZipWritten
+# ZipMerge
 
 **Website:** [https://calebhendren.github.io/zipmerge/](https://calebhendren.github.io/zipmerge/)
 
