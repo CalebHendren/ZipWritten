@@ -8,7 +8,6 @@
     <script src="https://unpkg.com/downloadjs@1.4.7"></script>
     <style>
         :root {
-            /* Dracula Color Palette */
             --bg: #282a36;
             --fg: #f8f8f2;
             --selection: #44475a;
@@ -46,11 +45,17 @@
             margin-bottom: 10px;
         }
 
-        p.subtitle {
+        p.subtitle, a.project-link {
             color: var(--comment);
             text-align: center;
-            margin-top: 0;
-            margin-bottom: 30px;
+            margin: 5px 0;
+            display: block;
+            text-decoration: none;
+        }
+
+        a.project-link {
+            color: var(--purple);
+            font-weight: bold;
         }
 
         .input-group {
@@ -165,7 +170,6 @@
             border-left: 3px solid var(--red);
         }
 
-        /* Dracula scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -188,7 +192,9 @@
 <body>
 <div class="container">
     <h1>Bubble Sheet + Written Sheet Merger</h1>
-    <p class="subtitle">Source Code: https://github.com/CalebHendren/zipmerge</p>
+    <a href="https://github.com/CalebHendren/zipmerge" class="project-link" target="_blank">Source Code</a>
+    <a href="https://github.com/CalebHendren/zipmerge/blob/master/README.md" class="project-link" target="_blank">Tutorial</a>
+    <a href="https://github.com/CalebHendren/zipmerge/tree/master/Example" class="project-link" target="_blank">Example Input/Output</a>
 
     <div class="input-group">
         <label for="sheetPack">Bubble Sheets Sheets (PDF only):</label>
@@ -217,7 +223,6 @@
 </div>
 
 <script>
-    // File input handlers
     document.getElementById('sheetPack').addEventListener('change', function(e) {
         updateFileInfo(e, 'sheetPackInfo');
         toggleProcessButton();
@@ -259,22 +264,18 @@
         const statusElement = document.getElementById('status');
         const processBtn = document.getElementById('processBtn');
 
-        // Reset UI
         statusElement.textContent = 'Processing...';
         statusElement.className = 'status';
         updateProgress(0);
         processBtn.disabled = true;
 
         try {
-            // Get input files
             const sheetPackFile = document.getElementById('sheetPack').files[0];
             const writtenAnswerFile = document.getElementById('writtenAnswer').files[0];
 
-            // Create output filename
             const originalName = sheetPackFile.name.replace(/\.pdf$/i, '');
             const outputFilename = `${originalName}_merged.pdf`;
 
-            // Load PDFs
             updateProgress(10);
             const [testSheetsPdf, answerSheetsPdf] = await Promise.all([
                 loadPdf(sheetPackFile),
@@ -282,13 +283,9 @@
             ]);
             updateProgress(30);
 
-            // Create new PDF
             const mergedPdf = await PDFLib.PDFDocument.create();
-
-            // Copy all test pages
             const testPages = await mergedPdf.copyPages(testSheetsPdf, testSheetsPdf.getPageIndices());
 
-            // Determine blank page dimensions from first answer page (if any)
             let blankPageDimensions = null;
             if (answerSheetsPdf.getPageCount() > 0) {
                 const [firstAnswerPage] = await mergedPdf.copyPages(answerSheetsPdf, [0]);
@@ -297,21 +294,15 @@
 
             updateProgress(50);
 
-            // Merge pages
             for (let i = 0; i < testPages.length; i++) {
-                // Add current test page
                 mergedPdf.addPage(testPages[i]);
 
-                // Add answer pages if any
                 if (answerSheetsPdf.getPageCount() > 0) {
-                    // Copy answer pages for this test page
                     const answerPageIndices = answerSheetsPdf.getPageIndices();
                     const currentAnswerPages = await mergedPdf.copyPages(answerSheetsPdf, answerPageIndices);
 
-                    // Add all answer pages
                     currentAnswerPages.forEach(page => mergedPdf.addPage(page));
 
-                    // Check if even and not last test page
                     const answerPagesCount = currentAnswerPages.length;
                     const needsBlank = answerPagesCount % 2 === 0 && i < testPages.length - 1;
 
@@ -320,11 +311,9 @@
                     }
                 }
 
-                // Update progress
                 updateProgress(50 + (i / testPages.length) * 40);
             }
 
-            // Save and download
             updateProgress(90);
             const pdfBytes = await mergedPdf.save();
             download(pdfBytes, outputFilename, "application/pdf");
