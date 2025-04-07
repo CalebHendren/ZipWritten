@@ -20,7 +20,7 @@ See: [https://support.zipgrade.com/hc/en-us/articles/202512649-How-do-I-enter-ed
 See: [https://support.zipgrade.com/hc/en-us/articles/115001172783-How-do-I-create-custom-answer-sheets](https://support.zipgrade.com/hc/en-us/articles/115001172783-How-do-I-create-custom-answer-sheets)
 
 ### Step 3: Download the custom Answer Sheet Packets
-(ZipGrade → Classes → Answer Sheet Packets). Student names, the quiz/exam name, and all other information will already be filled out.
+(ZipGrade → Classes → Answer Sheet Packets). Student names, the quiz/exam name, and all other information will already be filled out if you completed Step 1.
 
 ### Step 4: Prepare your files
 Take your Answer Sheet Packets from ZipGrade and the Written Sheet PDF that you created. Go to:  
