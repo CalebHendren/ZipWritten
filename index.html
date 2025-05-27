@@ -222,6 +222,23 @@
     <div id="status" class="status"></div>
 </div>
 
+<div class="container" style="margin-top: 40px;">
+    <h1>Student ID Processor for ZipGrade</h1>
+    <p class="subtitle" style="font-size: 0.9em; color: var(--comment);">
+        Converts eLearn IDs (e.g., #A00123456) to ZipGrade compatible IDs (e.g., 123456).
+        <br>Processes the first column of a CSV file.
+    </p>
+
+    <div class="input-group">
+        <label for="studentIdFile">Student IDs CSV File (.csv only):</label>
+        <input type="file" id="studentIdFile" accept=".csv">
+        <div id="studentIdFileInfo" class="file-info">No file selected</div>
+    </div>
+
+    <button id="processIdsBtn" onclick="processStudentIds()">Process IDs</button>
+    <div id="idStatus" class="status"></div>
+</div>
+
 <script>
     document.getElementById('sheetPack').addEventListener('change', function(e) {
         updateFileInfo(e, 'sheetPackInfo');
@@ -329,6 +346,119 @@
         } finally {
             processBtn.disabled = false;
         }
+    }
+
+    // For Student ID Processor
+    const studentIdFileInput = document.getElementById('studentIdFile');
+    const processIdsButtonElement = document.getElementById('processIdsBtn');
+
+    if (studentIdFileInput) {
+        studentIdFileInput.addEventListener('change', function(e) {
+            updateFileInfo(e, 'studentIdFileInfo'); // Reuses existing updateFileInfo
+            toggleProcessIdsButtonState();
+        });
+    }
+
+    function toggleProcessIdsButtonState() {
+        if (processIdsButtonElement && studentIdFileInput) {
+            processIdsButtonElement.disabled = studentIdFileInput.files.length === 0;
+        }
+    }
+
+    function formatStudentIdCore(idString) {
+        let currentId = idString.trim();
+        if (currentId.startsWith("#A00")) {
+            currentId = currentId.substring(4);
+        }
+        return currentId.replace(/\D/g, ''); // Return only digits
+    }
+
+    async function processStudentIds() {
+        const statusElement = document.getElementById('idStatus');
+        const processBtn = document.getElementById('processIdsBtn'); // processIdsButtonElement can be used here too
+        // const studentIdFileElement = document.getElementById('studentIdFile'); // Already studentIdFileInput
+
+        statusElement.textContent = 'Processing IDs...';
+        statusElement.className = 'status'; // Reset status style
+        processBtn.disabled = true;
+
+        try {
+            const csvFile = studentIdFileInput.files[0];
+            if (!csvFile) {
+                throw new Error("No CSV file selected.");
+            }
+
+            const originalName = csvFile.name.replace(/\.csv$/i, '');
+            const outputFilename = `${originalName}_processed_IDs.csv`;
+
+            const fileContent = await csvFile.text();
+            const lines = fileContent.split(/\r\n|\r|\n/);
+            const processedLines = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                if (line.trim() === '') {
+                    if (i === lines.length - 1 && processedLines.length > 0 && processedLines[processedLines.length-1].trim() === '') {
+                        continue;
+                    } else if (i === lines.length -1 && lines.length > 1) {
+                        continue;
+                    } else if (lines.length === 1) {
+                         processedLines.push('');
+                         continue;
+                    } else if (i < lines.length -1 ) {
+                         processedLines.push('');
+                         continue;
+                    }
+                }
+
+
+                const columns = line.split(','); // Simple CSV split
+                let firstColumnValue = columns[0];
+                let processedFirstColumn;
+
+                if (i === 0) { // Header row: try to preserve text headers
+                    const formattedHeaderCell = formatStudentIdCore(firstColumnValue);
+                    if (/[a-zA-Z]/.test(firstColumnValue) && 
+                        (formattedHeaderCell === "" || (/^\d+$/.test(formattedHeaderCell) && firstColumnValue.trim() !== formattedHeaderCell))) {
+                        processedFirstColumn = firstColumnValue; 
+                    } else {
+                        processedFirstColumn = formattedHeaderCell;
+                    }
+                } else { // Data rows: always apply formatting
+                    processedFirstColumn = formatStudentIdCore(firstColumnValue);
+                }
+
+                if (columns.length > 1) {
+                    columns[0] = processedFirstColumn;
+                    processedLines.push(columns.join(','));
+                } else {
+                    processedLines.push(processedFirstColumn);
+                }
+            }
+
+            while (processedLines.length > 0 && processedLines[processedLines.length - 1].trim() === "") {
+                processedLines.pop();
+            }
+
+            const processedCsvContent = processedLines.join('\n');
+            download(new Blob([processedCsvContent], { type: 'text/csv;charset=utf-8;' }), outputFilename, "text/csv");
+
+            statusElement.textContent = `Success! Processed IDs saved as ${outputFilename}`;
+            statusElement.className = 'status success';
+
+        } catch (error) {
+            console.error("Error processing student IDs:", error);
+            statusElement.textContent = `Error: ${error.message}`;
+            statusElement.className = 'status error';
+        } finally {
+            processBtn.disabled = false;
+        }
+    }
+
+    toggleProcessButton(); 
+    if (document.getElementById('processIdsBtn')) {
+        toggleProcessIdsButtonState();
     }
 </script>
 </body>

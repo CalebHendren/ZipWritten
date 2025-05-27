@@ -9,7 +9,7 @@ This program simply adds a new page to the backs of multiple choice scanforms fo
 **Example Input and Output files:**  
 [https://github.com/CalebHendren/zipmerge/tree/master/Example](https://github.com/CalebHendren/zipmerge/tree/master/Example)
 
-## Usage
+## Bubble Sheet + Written Sheet Merger Usage
 
 > **Note:** Step 1 is optional if you don't want student names and other information pre-printed on the sheets, but at that point, you may as well just merge the two single-page PDF files manually in Adobe Acrobat. But you can still use this if you don't like dealing with Acrobat (my hatred of Acrobat is what prompted me to make this).
 
@@ -31,10 +31,14 @@ Take your Answer Sheet Packets from ZipGrade and the Written Sheet PDF that you 
 2. Select the Written Sheet as the **Written Answer Sheet**
 3. Click **Merge**
 
-## Upcoming Features
+## Student ID Processor for ZipGrade Usage
 
-### Accept Microsoft Word documents for the Written Answer Sheet to avoid the conversion to PDF. 
-The issue is that after being uploaded, they will have to be converted into HTML then into a PDF because I cannot find a way to directly convert into a PDF in a way that can be done 100% in the browser.
+This tool converts student IDs from the format `#A00123456` to a ZipGrade-compatible numeric format `123456` by removing the unnecessary `#A00`.
 
-### Process student IDs to make them ZipGrade compatable
-ZipGrade only accepts numbers in the student ID field. When exported from Brightspace, they are in the format #A00123456. ZipGrade can automatically assign random numbers as IDs, but if you would rather use their actual IDs, I plan to add a way to automatically cut off the unnecessary "#A00" and keep the "123456." In the mean time, this can be done quickly in Excel using the formula =RIGHT(A2, LEN(A2) - 4) and dragging the fill handle down.
+### Steps:
+1.  **Prepare your CSV File:** Export your student roster from your LMS as a CSV file. Student IDs should be in the first column.
+2.  **Go to the Website:** Navigate to [https://calebhendren.github.io/zipmerge/](https://calebhendren.github.io/zipmerge/).
+3.  **Locate the ID Processor:** Scroll down to the "Student ID Processor for ZipGrade" section.
+4.  **Upload CSV:** Click "Choose File" under "Student IDs CSV File (.csv only)" and select your CSV file.
+5.  **Process IDs:** Click the "Process IDs" button.
+6.  **Download:** The processed CSV file (e.g., `yourfile_processed_IDs.csv`) will be automatically downloaded by your browser. You can then import this file into ZipGrade as part of Step 1 in the above section.
