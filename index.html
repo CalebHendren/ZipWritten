@@ -28,6 +28,21 @@
             margin: 0;
             padding: 20px;
             line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.light-mode {
+            --bg: #EDF1E4;
+            --fg: #2B312C;
+            --selection: #D8DAD1;
+            --comment: #878D88;
+            --cyan: #3A8B84;
+            --green: #678C61;
+            --orange: #D68A46;
+            --pink: #D16B86;
+            --purple: #9F7BA9;
+            --red: #CA5B50;
+            --yellow: #C9A554;
         }
 
         .container {
@@ -37,12 +52,14 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
         }
 
         h1 {
             color: var(--purple);
             text-align: center;
             margin-bottom: 10px;
+            transition: color 0.3s ease;
         }
 
         p.subtitle, a.project-link {
@@ -51,6 +68,7 @@
             margin: 5px 0;
             display: block;
             text-decoration: none;
+            transition: color 0.3s ease;
         }
 
         a.project-link {
@@ -67,6 +85,7 @@
             margin-bottom: 8px;
             color: var(--cyan);
             font-weight: bold;
+            transition: color 0.3s ease;
         }
 
         input[type="file"] {
@@ -77,6 +96,7 @@
             border-radius: 4px;
             color: var(--fg);
             font-family: inherit;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
         input[type="file"]:focus {
@@ -122,6 +142,7 @@
             background-color: rgba(46, 221, 181, 0.1);
             border-radius: 4px;
             border-left: 3px solid var(--green);
+            transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .progress-container {
@@ -133,6 +154,7 @@
             margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
+            transition: color 0.3s ease;
         }
 
         .progress {
@@ -141,13 +163,14 @@
             border-radius: 4px;
             overflow: hidden;
             height: 20px;
+            transition: background-color 0.3s ease;
         }
 
         #progressBar {
             height: 100%;
             background: linear-gradient(90deg, var(--purple), var(--pink));
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.3s ease, background 0.3s ease;
         }
 
         .status {
@@ -162,12 +185,14 @@
             background-color: rgba(46, 221, 181, 0.2);
             color: var(--green);
             border-left: 3px solid var(--green);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         .status.error {
             background-color: rgba(255, 107, 107, 0.2);
             color: var(--red);
             border-left: 3px solid var(--red);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         ::-webkit-scrollbar {
@@ -176,20 +201,45 @@
 
         ::-webkit-scrollbar-track {
             background: var(--selection);
+            transition: background-color 0.3s ease;
         }
 
         ::-webkit-scrollbar-thumb {
             background: var(--purple);
             border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--pink);
         }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: var(--purple);
+            color: var(--bg);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--pink);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(199, 146, 234, 0.4);
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Consolas&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alucard&display=swap" rel="stylesheet">
 </head>
 <body>
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
 <div class="container">
     <h1>Bubble Sheet + Written Sheet Merger</h1>
     <a href="https://github.com/CalebHendren/zipmerge" class="project-link" target="_blank">Source Code</a>
@@ -454,6 +504,17 @@
         } finally {
             processBtn.disabled = false;
         }
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    }
+
+    // Load saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
     }
 
     toggleProcessButton(); 
