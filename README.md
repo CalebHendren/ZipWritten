@@ -43,4 +43,6 @@ This tool converts student IDs from the format `#A00123456` to a ZipGrade-compat
 5.  **Process IDs:** Click the "Process IDs" button.
 6.  **Download:** The processed CSV file (e.g., `yourfile_processed_IDs.csv`) will be automatically downloaded by your browser. You can then import this file into ZipGrade as part of Step 1 in the above section.
 
+WIP
+
 Todo: Find a workaround to get Word documents converted to PDF.
